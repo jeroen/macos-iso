@@ -10,7 +10,8 @@ jobs:
         run: softwareupdate --list-full-installers
 
       - name: Download installer
-        run: softwareupdate --fetch-full-installer --full-installer-version 11.7.6
+        run: |
+          softwareupdate --download --fetch-full-installer --full-installer-version 11.7.6
 
       - name: Create disk
         run: |
@@ -26,11 +27,11 @@ jobs:
       - name: Convert to ISO
         run: |
            hdiutil convert /tmp/MacBigSur.dmg -format UDTO -o ~/Desktop/MacBigSur.cdr
-           mv ~/Desktop/MacBigSur.cdr BigSur.iso
+           mv ~/Desktop/MacBigSur.cdr MacBigSur.iso
            rm -Rf /tmp/MacBigSur.dmg
 
       - name: Push to GHCR
         run: |
           brew install oras || true
           oras login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} || true
-          oras push ghcr.io/${{github.repository}}:latest --artifact-type application/vnd.acme.rocket.config ./BigSur.iso
+          oras push ghcr.io/${{github.repository}}:latest --artifact-type application/vnd.acme.rocket.config ./MacBigSur.iso
